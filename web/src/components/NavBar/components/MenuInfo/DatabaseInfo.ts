@@ -1,0 +1,42 @@
+export const dataBaseinfo = [
+  {
+    info: 'Drug',
+    source: 'DrugBank',
+    license: 'Academic use (requires attribution)',
+    href: 'https://go.drugbank.com',
+    src: '/logos/drugbank.png',
+    alt: 'DrugBank',
+  },
+  {
+    info: 'Gene-disease association',
+    source: 'DEMxLM',
+    license: 'Free access with attribution',
+    href: 'https://github.com/loucerac/drexml',
+    src: '',
+    alt: '',
+  },
+  {
+    info: 'Gene annotation',
+    source: 'Ensembl',
+    license: 'open license (EMBL-EBI)',
+    href: 'https://www.ensembl.org/index.html',
+    src: '/logos/ensembl.png',
+    alt: 'Ensembl',
+  },
+  {
+    info: 'Metabolic pathways',
+    source: 'KEGG',
+    license: 'Subscription required for commercial use',
+    href: 'https://www.kegg.jp/kegg/pathway.html#disease',
+    src: '/logos/kegg128.gif',
+    alt: 'KEGG',
+  },
+  {
+    info: 'Metabolic pathways',
+    source: 'hiPathia',
+    license: 'GPL-3.0 (free software) ',
+    href: 'http://hipathia.babelomics.org/',
+    src: '/logos/hiPathia.png',
+    alt: 'hiPathia',
+  },
+];

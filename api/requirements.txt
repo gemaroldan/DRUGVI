@@ -1,0 +1,6 @@
+flask
+neo4j
+flask-cors
+watchdog
+black
+dotenv

@@ -1,0 +1,6 @@
+neo4j
+click
+pytest
+pandas
+python-dotenv
+black
