@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useEffect } from 'react';
@@ -7,11 +7,13 @@ import WebClient from '../../../client/WebClient';
 import Pathway from '../../../types/Pathway';
 import stateFilterPathway from '../../../state/stateFilterPathway';
 import statePathways from '../../../state/statePathways';
+import stateSelectedNode from '../../../state/stateSelectedNode';
 
 export default function PathwaySelect() {
   //const [pathways, setPathways] = React.useState<Pathway[]>([]);
   const [pathways, setPathways] = useRecoilState(statePathways);
   const [filterPathway, setFilterPathway] = useRecoilState(stateFilterPathway);
+  const setSelectedNode = useSetRecoilState(stateSelectedNode);
 
   const handleChangePathway = React.useCallback(
     (event: React.SyntheticEvent<Element, Event>, value: Pathway | null) => {
@@ -20,6 +22,7 @@ export default function PathwaySelect() {
         setFilterPathway(item || null);
       } else {
         setFilterPathway(null);
+        setSelectedNode(null);
       }
     },
     [pathways, setFilterPathway],

@@ -5,7 +5,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { useEffect } from 'react';
 import WebClient from '../../../client/WebClient';
 import Node from '../../../types/graphic/Node';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import stateFilterPathway from '../../../state/stateFilterPathway';
 import stateFilterIniEffectorGene from '../../../state/stateFilterIniEffectorGene';
 import stateFilterEffectorGene from '../../../state/stateFilterEffectorGene';
@@ -13,8 +13,9 @@ import stateFilterEffectorGene from '../../../state/stateFilterEffectorGene';
 export default function IniEffectorGeneSelect() {
   const filterPathway = useRecoilValue(stateFilterPathway);
   const effectorGene = useRecoilValue(stateFilterEffectorGene);
+
   const [iniEffectorsGenes, setIniEffectorGenes] = React.useState<Node[]>([]);
-  const setFilterIniEffectorGene = useSetRecoilState(
+  const [filterIniEffectorGene, setFilterIniEffectorGene] = useRecoilState(
     stateFilterIniEffectorGene,
   );
 
@@ -37,8 +38,6 @@ export default function IniEffectorGeneSelect() {
     const abortController = new AbortController();
     (async () => {
       try {
-        setFilterIniEffectorGene(null);
-        console.log('clear filter effector gene');
         if (filterPathway != null && effectorGene != null) {
           const genes = await WebClient.getIniEffectorGenes(
             filterPathway.id,
@@ -58,14 +57,25 @@ export default function IniEffectorGeneSelect() {
     return () => {
       abortController.abort();
     };
-  }, [effectorGene, setFilterIniEffectorGene]);
+  }, [effectorGene]);
+
+  useEffect(() => {
+    console.log(
+      'clear filter effector filterIniEffectorGene',
+      filterIniEffectorGene,
+    );
+    if (filterIniEffectorGene != null) {
+      setFilterIniEffectorGene(null);
+    }
+  }, [iniEffectorsGenes]);
 
   return (
     <Autocomplete
       id="iniNode-select"
       sx={{ width: 300 }}
-      options={iniEffectorsGenes}
+      options={iniEffectorsGenes || []}
       autoHighlight
+      value={filterIniEffectorGene}
       getOptionLabel={(option) => option.properties.name}
       onChange={handleChangeIniEffectorGene}
       size="small"

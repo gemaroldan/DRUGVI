@@ -1,7 +1,7 @@
 from importlib.resources.readers import remove_duplicates
 from common.database import get_connection, get_database
 from common.logger_config import logger
-from services.pathways_service import get_patwhay_effector_gene, get_patwhay_ini_effector_gene
+from services.pathways_service import get_pathways_by_ids, get_patwhay_effector_gene, get_patwhay_ini_effector_gene
 from services.service import merge_graph_responses, remove_nodes_duplicates
 
 LIMIT = "LIMIT 10000"
@@ -57,21 +57,49 @@ def disease_map_transform(data):
 
 
 
+def get_disease_map_by_id(disease_map_id):
+    """ Get diseaseMap by id"""
+    driver = get_connection()
+
+    query = f"MATCH (dm:DiseaseMap) WHERE dm.id = '{disease_map_id}' RETURN dm {LIMIT}"
+    logger.debug(query)
+    
+    try:
+        with driver.session(database=get_database()) as session:
+            result = session.run(query)
+            for record in result:
+                n = record["dm"]
+                properties = dict(n.items())
+                return {
+                    "id": properties.get("id"),
+                    "name": properties.get("name")
+                }
+        return {}     
+    except Exception as e:
+        logger.error(f"Error getting nodes from Neo4j: {e}")
+        raise
+    finally:
+        pass
+
+
 def get_disease_map(disease_map_id):
     """Get all subpathways from one diseaseMap"""
     circuits_ids = get_disease_map_subpathways(disease_map_id)
 
+    # Get name 
+    disease_map = get_disease_map_by_id(disease_map_id)
     disease_map = {
-        'id': disease_map_id
-        #name: 
-        #description?: string;        
+        'id': disease_map_id,
+        'name':  disease_map['name'] if 'name' in disease_map else ''
     }
 
     pathways_circuits = disease_map_transform(circuits_ids)
 
+    list_pathways_ids = []
     for key, data in pathways_circuits.items(): 
         
         subpathways_disease_map = {}
+        list_pathways_ids.append(key);
 
         for circuit_id in data['circuit']:
             # From name circuit get list de n-pathways
@@ -89,12 +117,15 @@ def get_disease_map(disease_map_id):
                 subpathways_disease_map=merge_graph_responses(subpathways_disease_map, subpathways)
 
         pathways_circuits[key]["subpathways"] = subpathways_disease_map
+    
+    # Get name form pathways
+    pathways = get_pathways_by_ids(list_pathways_ids)        
+    for key, data in pathways_circuits.items(): 
+        pathways_circuits[key]["name"] =  next((p["name"] for p in pathways if p["id"] == key), None)
 
     disease_map["circuits"] = pathways_circuits
     return disease_map 
 
-
-#nodes_effector_gene = get_patwhay_effector_gene(n_pathway)
 
 
 def get_subpathways_from_npathway_to_end(n_pathway):

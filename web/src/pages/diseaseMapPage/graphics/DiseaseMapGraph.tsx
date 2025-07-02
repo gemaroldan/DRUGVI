@@ -9,11 +9,14 @@ import { createRelationships } from '../../graphics/CreateLinkGraphic';
 import DiseaseMap from '../../../types/DiseaseMap';
 import GenericGraph from './GenericGraph';
 import Alert from '@mui/material/Alert';
-import Typography from '@mui/material/Typography';
+
+import Label from '../../../components/Form/Label';
+import Value from '../../../components/Form/Value';
+import Box from '@mui/material/Box';
+import RouteIcon from '@mui/icons-material/Route';
+import PolylineIcon from '@mui/icons-material/Polyline';
+import { HtmlTooltip } from '../../../components/Form/HtmlTooltip';
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 
 function DiseaseMapGraph() {
   const filterDiseaseMap = useRecoilValue(stateFilterDiseaseMap);
@@ -41,31 +44,45 @@ function DiseaseMapGraph() {
   }, [filterDiseaseMap]);
 
   return (
-    <div>
+    <>
       {!diseaseMapGraphData && (
         <Alert severity="warning">Select disease map to show graph.</Alert>
-      )}
-      {diseaseMapGraphData && (
-        <span>
-          {diseaseMapGraphData.id} - {diseaseMapGraphData.name}
-        </span>
       )}
 
       {diseaseMapGraphData && diseaseMapGraphData.circuits
         ? Object.entries(diseaseMapGraphData.circuits).map(
             ([pathwayId, circuitData]: [string, any]) => (
               <div key={pathwayId}>
-                <br />
-                <br />
-                <div> Pathway: {pathwayId}</div>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <RouteIcon fontSize="small" />
+                  <Label>Pathway:</Label>
+                  <Value>
+                    {pathwayId} - {circuitData.name}
+                  </Value>
+                </Box>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <PolylineIcon fontSize="small" />
+                  <Label>Num circuits: </Label>
+                  <Value>
+                    {circuitData.circuit.length}
 
-                <div style={{ whiteSpace: 'pre' }}>
-                  Circuits: {circuitData.circuit.length} (
-                  {Array.isArray(circuitData.circuit)
-                    ? circuitData.circuit.join(', ')
-                    : ''}
-                  )
-                </div>
+                    <HtmlTooltip
+                      title={
+                        <ul style={{ paddingLeft: '1.2em', margin: 0 }}>
+                          {Array.isArray(circuitData.circuit)
+                            ? circuitData.circuit.map(
+                                (item: string, index: number) => (
+                                  <li key={index}>{item}</li>
+                                ),
+                              )
+                            : null}
+                        </ul>
+                      }
+                    >
+                      <Button>show circuits</Button>
+                    </HtmlTooltip>
+                  </Value>
+                </Box>
 
                 <GenericGraph
                   graphKey={`${pathwayId}`}
@@ -74,6 +91,8 @@ function DiseaseMapGraph() {
                   createLinks={createRelationships}
                   createLabelsNodes={undefined}
                 />
+                <br />
+                <br />
               </div>
             ),
           )
@@ -97,7 +116,7 @@ function DiseaseMapGraph() {
             ),
           )
         : null*/}
-    </div>
+    </>
   );
 }
 

@@ -82,6 +82,83 @@ export const CiteModal: React.FC<Props> = ({ open, closeModal }) => {
           >
             <Typography id="transition-modal-cite-description" variant="body2">
               <p>
+                If you use the <b>KEGG</b>, you must acknowledge the project by
+                citing the publication:
+              </p>
+              <p>
+                <Alert
+                  severity="warning"
+                  icon={<ContentCopyIcon fontSize="inherit" />}
+                >
+                  Kanehisa M, Goto S. KEGG: kyoto encyclopedia of genes and
+                  genomes. Nucleic Acids Res. 2000 Jan 1;28(1):27-30. doi:
+                  {'  '}
+                  <Link
+                    href="https://10.1093/nar/28.1.27"
+                    title="Genome-scale mechanistic modeling of signaling pathways made easy: A bioconductor/cytoscape/web server framework for the analysis of omic data"
+                    underline="hover"
+                    target="_blank"
+                  >
+                    10.1093/nar/28.1.27
+                  </Link>
+                  . PMID: 10592173; PMCID: PMC102409.
+                </Alert>
+              </p>
+              <p>
+                If you use the <b>drexml package</b>, you must acknowledge the
+                project by citing the publication:
+              </p>
+              <p>
+                <Alert
+                  severity="warning"
+                  icon={<ContentCopyIcon fontSize="inherit" />}
+                >
+                  Esteban-Medina, M., de la Oliva Roque, V. M., Herráiz-Gil, S.,
+                  Peña-Chilet, M., Dopazo, J., & Loucera, C. (2024). drexml: A
+                  command line tool and Python package for drug repurposing.
+                  Computational and Structural Biotechnology Journal, 23,
+                  1129-1143.
+                  {'  '}
+                  <Link
+                    href="https://doi.org/10.1016/j.csbj.2024.02.027"
+                    title="drexml: A command line tool and Python package for drug repurposing"
+                    underline="hover"
+                    target="_blank"
+                  >
+                    https://doi.org/10.1016/j.csbj.2024.02.027
+                  </Link>
+                  .
+                </Alert>
+              </p>
+              <p>
+                If you use the <b>hiPathia</b>, you must acknowledge the project
+                by citing the publication:
+              </p>
+              <p>
+                <Alert
+                  severity="warning"
+                  icon={<ContentCopyIcon fontSize="inherit" />}
+                >
+                  Rian, K., Hidalgo, M. R., Çubuk, C., Falco, M. M., Loucera,
+                  C., Esteban-Medina, M., Alamo- Alvarez, I., Peña-Chilet, M., &
+                  Dopazo, J. (2021). Genome-scale mechanistic modeling of
+                  signaling pathways made easy: A bioconductor/cytoscape/web
+                  server framework Gema Roldán González Visualizador para el
+                  descubrimiento y el reposicionamiento de fármacos 35 for the
+                  analysis of omic data. Computational and Structural
+                  Biotechnology Journal, 19, 2968-2978.
+                  {'  '}
+                  <Link
+                    href="https://doi.org/10.1016/j.csbj.2021.05.022"
+                    title="Genome-scale mechanistic modeling of signaling pathways made easy: A bioconductor/cytoscape/web server framework for the analysis of omic data"
+                    underline="hover"
+                    target="_blank"
+                  >
+                    https://doi.org/10.1016/j.csbj.2021.05.022
+                  </Link>
+                </Alert>
+              </p>
+              <p>
                 If you use the <b>Drugbank dataset</b>, you must acknowledge the
                 project by citing the publication:
               </p>
@@ -161,83 +238,6 @@ export const CiteModal: React.FC<Props> = ({ open, closeModal }) => {
                     https://doi.org/10.1093/nar/gkae1071
                   </Link>
                   .
-                </Alert>
-              </p>
-              <p>
-                If you use the <b>drexml package</b>, you must acknowledge the
-                project by citing the publication:
-              </p>
-              <p>
-                <Alert
-                  severity="warning"
-                  icon={<ContentCopyIcon fontSize="inherit" />}
-                >
-                  Esteban-Medina, M., de la Oliva Roque, V. M., Herráiz-Gil, S.,
-                  Peña-Chilet, M., Dopazo, J., & Loucera, C. (2024). drexml: A
-                  command line tool and Python package for drug repurposing.
-                  Computational and Structural Biotechnology Journal, 23,
-                  1129-1143.
-                  {'  '}
-                  <Link
-                    href="https://doi.org/10.1016/j.csbj.2024.02.027"
-                    title="drexml: A command line tool and Python package for drug repurposing"
-                    underline="hover"
-                    target="_blank"
-                  >
-                    https://doi.org/10.1016/j.csbj.2024.02.027
-                  </Link>
-                  .
-                </Alert>
-              </p>
-              <p>
-                If you use the <b>hiPathia</b>, you must acknowledge the project
-                by citing the publication:
-              </p>
-              <p>
-                <Alert
-                  severity="warning"
-                  icon={<ContentCopyIcon fontSize="inherit" />}
-                >
-                  Rian, K., Hidalgo, M. R., Çubuk, C., Falco, M. M., Loucera,
-                  C., Esteban-Medina, M., Alamo- Alvarez, I., Peña-Chilet, M., &
-                  Dopazo, J. (2021). Genome-scale mechanistic modeling of
-                  signaling pathways made easy: A bioconductor/cytoscape/web
-                  server framework Gema Roldán González Visualizador para el
-                  descubrimiento y el reposicionamiento de fármacos 35 for the
-                  analysis of omic data. Computational and Structural
-                  Biotechnology Journal, 19, 2968-2978.
-                  {'  '}
-                  <Link
-                    href="https://doi.org/10.1016/j.csbj.2021.05.022"
-                    title="Genome-scale mechanistic modeling of signaling pathways made easy: A bioconductor/cytoscape/web server framework for the analysis of omic data"
-                    underline="hover"
-                    target="_blank"
-                  >
-                    https://doi.org/10.1016/j.csbj.2021.05.022
-                  </Link>
-                </Alert>
-              </p>
-              <p>
-                If you use the <b>KEGG</b>, you must acknowledge the project by
-                citing the publication:
-              </p>
-              <p>
-                <Alert
-                  severity="warning"
-                  icon={<ContentCopyIcon fontSize="inherit" />}
-                >
-                  Kanehisa M, Goto S. KEGG: kyoto encyclopedia of genes and
-                  genomes. Nucleic Acids Res. 2000 Jan 1;28(1):27-30. doi:
-                  {'  '}
-                  <Link
-                    href="https://10.1093/nar/28.1.27"
-                    title="Genome-scale mechanistic modeling of signaling pathways made easy: A bioconductor/cytoscape/web server framework for the analysis of omic data"
-                    underline="hover"
-                    target="_blank"
-                  >
-                    10.1093/nar/28.1.27
-                  </Link>
-                  . PMID: 10592173; PMCID: PMC102409.
                 </Alert>
               </p>
             </Typography>

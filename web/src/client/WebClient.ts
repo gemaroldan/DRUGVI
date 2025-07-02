@@ -31,6 +31,7 @@ class WebClient {
                   subpathways: WebClient.translateFromServerGraphData(
                     circuitData.subpathways,
                   ),
+                  name: circuitData.name ? circuitData.name : '',
                 };
                 return acc;
               },
@@ -234,7 +235,7 @@ class WebClient {
   static async getNodeDetail(
     selectedNode: string,
     abortSignal: AbortSignal,
-  ): Promise<Node[]> {
+  ): Promise<GraphData> {
     const params = {};
     const url = `pathways/nodes/detail/${selectedNode}`;
     const response = await WebClient.get<any>(url, params, abortSignal);
@@ -244,9 +245,11 @@ class WebClient {
       error.name = '500';
       throw error;
     } else {
-      return response.nodes.map((node: any) =>
-        WebClient.translateFromServerNode(node),
-      );
+      return WebClient.translateFromServerGraphData(response);
+
+      //      response.nodes.map((node: any) =>
+      //       WebClient.translateFromServerNode(node),
+      //);
     }
   }
 

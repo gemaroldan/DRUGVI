@@ -7,6 +7,7 @@ import Protein from './Protein';
 interface DetailNPathway {
   id: string;
   name: string;
+  shape?: string;
   npathways?: NPathway[] | null;
   nfunctions?: NFunction[] | null;
   genes?: Gene[] | null;

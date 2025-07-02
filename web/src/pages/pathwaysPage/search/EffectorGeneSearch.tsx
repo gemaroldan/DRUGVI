@@ -4,7 +4,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { useEffect } from 'react';
 import WebClient from '../../../client/WebClient';
 import Node from '../../../types/graphic/Node';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import stateFilterPathway from '../../../state/stateFilterPathway';
 import stateFilterEffectorGene from '../../../state/stateFilterEffectorGene';
 import stateEffectorGenes from '../../../state/stateEffectorGenes';
@@ -35,7 +35,6 @@ export default function EffectorGeneSelect() {
     const abortController = new AbortController();
     (async () => {
       try {
-        setFilterEffectorGene(null);
         console.log('clear filter effector gene');
         if (filterPathway != null) {
           const genes = await WebClient.getEffectorGenes(
@@ -43,8 +42,10 @@ export default function EffectorGeneSelect() {
             abortController.signal,
           );
           setEffectorGenes(genes);
+          //setFilterEffectorGene(null);
         } else {
           setEffectorGenes([]);
+          //setFilterEffectorGene(null);
         }
       } catch (error) {
         if (!abortController.signal.aborted) {
@@ -55,7 +56,13 @@ export default function EffectorGeneSelect() {
     return () => {
       abortController.abort();
     };
-  }, [filterPathway, setFilterEffectorGene]);
+  }, [filterPathway]);
+
+  useEffect(() => {
+    if (filterEffectorGene != null) {
+      setFilterEffectorGene(null);
+    }
+  }, [effectorsGenes]);
 
   return (
     <Autocomplete

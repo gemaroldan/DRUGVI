@@ -29,9 +29,34 @@ def get_all_pathways():
     finally:
         pass
 
+def get_pathways_by_ids(patwhays_ids):
+    """ Get info about pathways (name)"""
+    driver = get_connection()
+
+    query = f"MATCH (p:Pathway) WHERE p.id IN {patwhays_ids} RETURN p {LIMIT}"
+    logger.debug(query)
+    pathways = []
+    try:
+        with driver.session(database=get_database()) as session:
+            result = session.run(query)
+            for record in result:
+                n = record["p"]
+                properties = dict(n.items())
+                pathways.append( {
+                    "id": properties.get("id"),
+                    "name": properties.get("name"),
+                    "section": properties.get("section")
+                })
+        return pathways
+    except Exception as e:
+        logger.error(f"Error getting nodes from Neo4j: {e}")
+        raise
+    finally:
+        pass
 
 
-def get_pathway(pathway_id):
+def get_n_pathways(pathway_id):
+    """ Get all nodes from one pathway"""
     driver = get_connection()
 
     query = f"MATCH (n:NPathway) -[r]->(m:NPathway) WHERE n.id STARTS WITH '{pathway_id}' RETURN n, r, m {LIMIT}"
@@ -113,6 +138,45 @@ def get_patwhay_effector_gene(effector_gene_Id):
 
     driver = get_connection()
 
+    query = f"MATCH path = (n:NPathway {{id: '{effector_gene_Id}'}})<-[r:activation|inhibition*]-(m) RETURN nodes(path) as nodes, relationships(path) as rels {LIMIT}"
+    logger.debug(query)
+
+    try:
+        with driver.session() as session:
+            result = session.run(query)
+            list_nodes = []
+            links = []
+
+            for record in result:
+                # Extraer nodos
+                nodes = record["nodes"]
+                for n in nodes:
+                    if n.element_id:
+                        list_nodes.append({"id": n.element_id, "labels": list(n.labels), "properties": dict(n.items())})
+
+
+                # Extraer relaciones
+                rels = record["rels"]
+                for rel in rels:
+                    rel_props = dict(rel.items())
+                    rel_props["type"] = rel.type  # tipo de relación (activation/inhibition)
+                    rel_props["source"] = {
+                       "id": rel.start_node.element_id  # ID del nodo origen
+                    }
+                    rel_props["target"] = {
+                        "id" : rel.end_node.element_id      # ID del nodo destino
+                    }
+                    links.append(rel_props)
+
+   
+            return {"nodes": remove_nodes_duplicates(list_nodes), "links" : links}
+    
+    except Exception as e:
+        logger.error(f"Error retrieving pathways: {e}")
+    finally:
+        pass    
+
+    """
     query = f"MATCH path = (n:NPathway {{id: '{effector_gene_Id}'}})<-[:activation|inhibition*]-(related) RETURN path {LIMIT}"   
     logger.debug(query)
 
@@ -132,12 +196,12 @@ def get_patwhay_effector_gene(effector_gene_Id):
                     logger.debug(nodes[0])
 
             return {"nodes": remove_nodes_duplicates(nodes)}
- 
+    
     except Exception as e:
         logger.error(f"Error retrieving pathways: {e}")
     finally:
         pass    
-
+    """    
 
 def get_ini_effector_gene(effector_gene_id):
     """Get all initial effector genes from efector gene"""

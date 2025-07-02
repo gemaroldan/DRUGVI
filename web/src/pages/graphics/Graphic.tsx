@@ -19,6 +19,7 @@ import stateFilterEffectorGene from '../../state/stateFilterEffectorGene';
 import stateFilterIniEffectorGene from '../../state/stateFilterIniEffectorGene';
 import SvgSize from '../../types/graphic/SvgSize';
 import stateSelectedNode from '../../state/stateSelectedNode';
+import Alert from '@mui/material/Alert/Alert';
 
 const WIDTH = 'WIDTH';
 const HEIGHT = 'HEIGHT';
@@ -138,7 +139,15 @@ function Graphic() {
             );
           highlightNodes(svg, pathwayIniEffectorGene);
         } else {
-          clearHighlightNodes(svg);
+          if (filterEffectorGene != null) {
+            const pathwayEffectorGene = await WebClient.getPathwayEffectorGene(
+              filterEffectorGene.properties.id,
+              abortController.signal,
+            );
+            highlightNodes(svg, pathwayEffectorGene);
+          } else {
+            clearHighlightNodes(svg);
+          }
         }
       } catch (error) {
         if (!abortController.signal.aborted) {
@@ -165,6 +174,12 @@ function Graphic() {
           console.log(svgSize);
           setSvgSize(svgSize);
           setGraph(graphData);
+        } else {
+          // Clear
+          setGraph({
+            nodes: [],
+            links: [],
+          });
         }
       } catch (error) {
         if (!abortController.signal.aborted) {
@@ -215,6 +230,10 @@ function Graphic() {
           .attr('fill', 'black')
           .text('No data');
       }
+    } else {
+      const svg = d3.select(svgRef.current);
+      // Clear SVG
+      svg.selectAll('*').remove();
     }
   }, [
     graph,
@@ -226,7 +245,11 @@ function Graphic() {
     tooltip,
   ]);
 
-  return (
+  return (<>
+      {graph.nodes.length == 0 && (
+          <Alert severity="warning">Select a pathway to show graph.</Alert>
+        )}
+  {graph.nodes.length > 0 && (
     <div className="App">
       <svg
         ref={svgRef}
@@ -246,7 +269,8 @@ function Graphic() {
           pointerEvents: 'none', // Prevent tooltip from interfering with mouse events
         }}
       ></div>
-    </div>
+    </div>)}
+    </>
   );
 }
 

@@ -6,8 +6,10 @@ neo4j_data/
 .devcontainer/
 .vscode/
 
-
-
+# Python temp files
+__pycache__/
+*.py[cod]
+*$py.class
 
 #### WEB #### 
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from services.pathways_service import (
     get_all_pathways,
-    get_pathway,
+    get_n_pathways,
     get_effector_genes,
     get_patwhay_effector_gene,
     get_ini_effector_gene,
@@ -26,7 +26,7 @@ def pathways_maps():
 def pathway(pathway_id):
     """ Get all nodes from one pathway"""
     try:
-        data = get_pathway(pathway_id)
+        data = get_n_pathways(pathway_id)
         return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

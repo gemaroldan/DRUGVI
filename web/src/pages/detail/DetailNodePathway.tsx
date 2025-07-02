@@ -1,10 +1,9 @@
 import DetailNPathway from '../../types/graphic/DetailNPathway';
 import { useEffect, useState } from 'react';
 import WebClient from '../../client/WebClient';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import stateSelectedNode from '../../state/stateSelectedNode';
 
-import Node from '../../types/graphic/Node';
 import Gene from '../../types/graphic/Gene';
 import NPathway from '../../types/graphic/NPathway';
 import NFunction from '../../types/graphic/NFunction';
@@ -19,14 +18,26 @@ import Protein from '../../types/graphic/Protein';
 import { Box, List, ListItemButton, ListItemText } from '@mui/material';
 import Label from '../../components/Form/Label';
 import Value from '../../components/Form/Value';
+import GraphData from '../../types/graphic/GraphData';
 
 function DetailNodePathway() {
   const selectedNode = useRecoilValue(stateSelectedNode);
   const [detailSelectedNode, setDetailSelectedNode] =
-    useState<DetailNPathway>();
+    useState<DetailNPathway | null>();
   console.log(selectedNode);
+  const setSelectedNode = useSetRecoilState(stateSelectedNode);
 
-  const handlerSelected = (name: string) => {};
+  function handlerSelectedRelPathway(npathway: NPathway) {
+    const nodePath = {
+      id: npathway.name,
+      labels: ['Pathway'],
+      properties: npathway,
+      x: npathway.x,
+      y: npathway.y,
+    };
+
+    setSelectedNode(nodePath);
+  }
 
   // Obtener los datos de la API Flask
   useEffect(() => {
@@ -37,13 +48,16 @@ function DetailNodePathway() {
         console.log(selectedNode);
 
         if (selectedNode != null) {
-          const nodes: Node[] = await WebClient.getNodeDetail(
+          const graph: GraphData = await WebClient.getNodeDetail(
             selectedNode.properties.id,
             abortController.signal,
           );
+          const nodes = graph.nodes;
+
           const detailSelectedNodeTmp: DetailNPathway = {
             id: selectedNode.properties.id,
             name: selectedNode.properties.name,
+            shape: selectedNode.properties?.shape,
             genes: nodes
               ? nodes
                   .filter((n) => n.labels[0] == 'Gene')
@@ -71,6 +85,8 @@ function DetailNodePathway() {
               : [],
           };
           setDetailSelectedNode(detailSelectedNodeTmp);
+        } else {
+          setDetailSelectedNode(null);
         }
       } catch (error) {
         if (!abortController.signal.aborted) {
@@ -97,8 +113,20 @@ function DetailNodePathway() {
                 {detailSelectedNode && <>{detailSelectedNode.id}</>}
               </Value>
 
-              <Label>Name: </Label>
+              <Label>Name:</Label>
               <Value>
+                {detailSelectedNode.shape == 'metabolite' && (
+                  <Box
+                    component="img"
+                    src="/metabolite.png"
+                    alt="Metabolite"
+                    sx={{
+                      width: '1.8rem',
+                      paddingRight: '5px',
+                    }}
+                    title="Metabolite"
+                  />
+                )}
                 {detailSelectedNode && <>{detailSelectedNode.name}</>}
               </Value>
             </AccordionDetails>
@@ -121,42 +149,41 @@ function DetailNodePathway() {
                     'genes' in detailSelectedNode &&
                     detailSelectedNode?.genes &&
                     detailSelectedNode?.genes.map((g, i) => (
-                      <p>
-                        <>
+                      <p key={`p_${i}`}>
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          sx={{ mt: i === 0 ? 0 : 4 }}
+                        >
                           <Box
-                            display="flex"
-                            alignItems="center"
-                            sx={{ mt: i === 0 ? 0 : 4 }}
-                          >
-                            <Box
-                              component="img"
-                              src="/gene.png"
-                              alt="Gene"
-                              sx={{
-                                width: '2rem',
-                                paddingRight: '5px',
-                              }}
-                              title="Gene: EntrezId - Name"
-                            />{' '}
-                            <Value>
-                              <Link
-                                title="EntrezId - Nactional Center for Biotechnology Information"
-                                href={`https://www.ncbi.nlm.nih.gov/gene/${g.id}`}
-                                target="_blank"
-                              >
-                                {g.id}
-                              </Link>
-                              {' - '}
-                              <Link
-                                title="GenerCards"
-                                href={`https://www.genecards.org/cgi-bin/carddisp.pl?gene=${g.name}`}
-                                target="_blank"
-                              >
-                                {g.name}
-                              </Link>
-                            </Value>
-                          </Box>
-                        </>
+                            component="img"
+                            src="/gene.png"
+                            alt="Gene"
+                            sx={{
+                              width: '2rem',
+                              paddingRight: '5px',
+                            }}
+                            title="Gene: EntrezId - Name"
+                          />{' '}
+                          <Value>
+                            <Link
+                              title="EntrezId - Nactional Center for Biotechnology Information"
+                              href={`https://www.ncbi.nlm.nih.gov/gene/${g.id}`}
+                              target="_blank"
+                            >
+                              {g.id}
+                            </Link>
+                            {' - '}
+                            <Link
+                              title="GenerCards"
+                              href={`https://www.genecards.org/cgi-bin/carddisp.pl?gene=${g.name}`}
+                              target="_blank"
+                            >
+                              {g.name}
+                            </Link>
+                          </Value>
+                        </Box>
+
                         <>
                           <Label>Region: </Label>
                           {g.seq_region_name}:{g.seq_region_start}-
@@ -215,7 +242,7 @@ function DetailNodePathway() {
                   {detailSelectedNode &&
                     detailSelectedNode.drugs &&
                     detailSelectedNode.drugs.map((d: Drug, i) => (
-                      <p>
+                      <p key={`d_${i}`}>
                         <Box
                           display="flex"
                           alignItems="center"
@@ -351,11 +378,24 @@ function DetailNodePathway() {
                   <List dense>
                     {detailSelectedNode &&
                       detailSelectedNode.npathways &&
-                      detailSelectedNode.npathways.map((np: NPathway) => (
+                      detailSelectedNode.npathways.map((np: NPathway, i) => (
                         <ListItemButton
-                          title="Selec node pathway"
-                          onClick={() => handlerSelected(np.name)}
+                          key={`np_${i}`}
+                          title="Click to show detail node"
+                          onClick={() => handlerSelectedRelPathway(np)}
                         >
+                          {np && np.shape && np?.shape == 'metabolite' && (
+                            <Box
+                              component="img"
+                              src="/metabolite.png"
+                              alt="Metabolite"
+                              sx={{
+                                width: '1.8rem',
+                                paddingRight: '5px',
+                              }}
+                              title="Metabolite"
+                            />
+                          )}
                           <ListItemText primary={np.name} />
                         </ListItemButton>
                       ))}
