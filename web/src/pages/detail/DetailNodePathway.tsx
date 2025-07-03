@@ -15,10 +15,17 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Link from '@mui/material/Link';
 import Protein from '../../types/graphic/Protein';
-import { Box, List, ListItemButton, ListItemText } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
+} from '@mui/material';
 import Label from '../../components/Form/Label';
 import Value from '../../components/Form/Value';
 import GraphData from '../../types/graphic/GraphData';
+import CloseIcon from '@mui/icons-material/Close';
 
 function DetailNodePathway() {
   const selectedNode = useRecoilValue(stateSelectedNode);
@@ -27,14 +34,17 @@ function DetailNodePathway() {
   console.log(selectedNode);
   const setSelectedNode = useSetRecoilState(stateSelectedNode);
 
-  function handlerSelectedRelPathway(npathway: NPathway) {
-    const nodePath = {
-      id: npathway.name,
-      labels: ['Pathway'],
-      properties: npathway,
-      x: npathway.x,
-      y: npathway.y,
-    };
+  function handlerSelectedRelPathway(npathway: NPathway | null) {
+    const nodePath =
+      npathway != null
+        ? {
+            id: npathway.name,
+            labels: ['NPathway'],
+            properties: npathway,
+            x: npathway.x,
+            y: npathway.y,
+          }
+        : null;
 
     setSelectedNode(nodePath);
   }
@@ -44,9 +54,6 @@ function DetailNodePathway() {
     const abortController = new AbortController();
     (async () => {
       try {
-        console.log('----');
-        console.log(selectedNode);
-
         if (selectedNode != null) {
           const graph: GraphData = await WebClient.getNodeDetail(
             selectedNode.properties.id,
@@ -103,9 +110,18 @@ function DetailNodePathway() {
     <>
       {detailSelectedNode ? (
         <>
-          <Accordion defaultExpanded>
+          <Accordion defaultExpanded expanded={true}>
             <AccordionSummary aria-controls="panel1-content" id="panel1-header">
               Selected NPathway:
+              <IconButton
+                onClick={(e) => handlerSelectedRelPathway(null)}
+                title="Clear selected node"
+                size="small"
+                sx={{ position: 'absolute', top: 8, right: 8 }}
+                aria-label="close"
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
             </AccordionSummary>
             <AccordionDetails>
               <Label>Id: </Label>
@@ -378,27 +394,29 @@ function DetailNodePathway() {
                   <List dense>
                     {detailSelectedNode &&
                       detailSelectedNode.npathways &&
-                      detailSelectedNode.npathways.map((np: NPathway, i) => (
-                        <ListItemButton
-                          key={`np_${i}`}
-                          title="Click to show detail node"
-                          onClick={() => handlerSelectedRelPathway(np)}
-                        >
-                          {np && np.shape && np?.shape == 'metabolite' && (
-                            <Box
-                              component="img"
-                              src="/metabolite.png"
-                              alt="Metabolite"
-                              sx={{
-                                width: '1.8rem',
-                                paddingRight: '5px',
-                              }}
-                              title="Metabolite"
-                            />
-                          )}
-                          <ListItemText primary={np.name} />
-                        </ListItemButton>
-                      ))}
+                      detailSelectedNode.npathways
+                        .slice(1)
+                        .map((np: NPathway, i) => (
+                          <ListItemButton
+                            key={`np_${i}`}
+                            title="Click to show detail node"
+                            onClick={() => handlerSelectedRelPathway(np)}
+                          >
+                            {np && np.shape && np?.shape == 'metabolite' && (
+                              <Box
+                                component="img"
+                                src="/metabolite.png"
+                                alt="Metabolite"
+                                sx={{
+                                  width: '1.8rem',
+                                  paddingRight: '5px',
+                                }}
+                                title="Metabolite"
+                              />
+                            )}
+                            <ListItemText primary={np.name} />
+                          </ListItemButton>
+                        ))}
                   </List>
                 </AccordionDetails>
               </Accordion>

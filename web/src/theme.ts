@@ -9,6 +9,10 @@ declare module '@mui/material/Button' {
 
 const primaryHighlight = '#13DEFC';
 
+export const graphMoving = '#0074c2';
+export const graphSelected = '#0074c2'; //'#2ecc71';
+export const graphPath = 'orange';
+
 const baseMenuButtonStyles = {
   fontSize: '1.2rem',
   textTransform: 'capitalize',

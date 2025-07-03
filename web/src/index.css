@@ -34,3 +34,15 @@ code {
   stroke-opacity: 0.6;
   stroke-width: 2px;
 }
+
+.moving {
+  background-color: '#0074c2';
+}
+
+.selected {
+  background-color: '#2ecc71';
+}
+
+.path {
+  background-color: 'orange';
+}

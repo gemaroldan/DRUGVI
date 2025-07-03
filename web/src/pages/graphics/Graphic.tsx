@@ -7,13 +7,15 @@ import {
   createLabelsNodes,
   highlightNodes,
   clearHighlightNodes,
+  setSelectNodeColor,
+  clearSelectNodeColor,
 } from './CreateNodeGraphic';
 
 import { createRelationships } from './CreateLinkGraphic';
 
 import Node from '../../types/graphic/Node';
 
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import stateFilterPathway from '../../state/stateFilterPathway';
 import stateFilterEffectorGene from '../../state/stateFilterEffectorGene';
 import stateFilterIniEffectorGene from '../../state/stateFilterIniEffectorGene';
@@ -28,7 +30,7 @@ function Graphic() {
   const filterPathway = useRecoilValue(stateFilterPathway);
   const filterEffectorGene = useRecoilValue(stateFilterEffectorGene);
   const filterIniEffectorGene = useRecoilValue(stateFilterIniEffectorGene);
-  const setSelectedNode = useSetRecoilState(stateSelectedNode);
+  const [selectedNode, setSelectedNode] = useRecoilState(stateSelectedNode);
 
   const [graph, setGraph] = useState<GraphData>({
     nodes: [],
@@ -93,9 +95,18 @@ function Graphic() {
     return result;
   }
 
-  function hnaderSelectedNode(node: Node) {
+  function handlerSelectedNode(node: Node) {
     setSelectedNode(node);
   }
+
+  useEffect(() => {
+    const svg = d3.select(svgRef.current);
+    if (selectedNode == null) {
+      clearSelectNodeColor(svg);
+    } else {
+      setSelectNodeColor(svg, selectedNode);
+    }
+  }, [selectedNode]);
 
   /* Highlight the nodes and links */
   useEffect(() => {
@@ -210,9 +221,15 @@ function Graphic() {
           graph.nodes,
           tooltip,
           svgSize,
-          hnaderSelectedNode,
+          handlerSelectedNode,
         );
-        createLabelsNodes(nodeGroup, graph.nodes, svgSize);
+        createLabelsNodes(
+          nodeGroup,
+          graph.nodes,
+          svgSize,
+          tooltip,
+          handlerSelectedNode,
+        );
         createRelationships(
           svg,
           linkGroup,
@@ -245,31 +262,33 @@ function Graphic() {
     tooltip,
   ]);
 
-  return (<>
+  return (
+    <>
       {graph.nodes.length == 0 && (
-          <Alert severity="warning">Select a pathway to show graph.</Alert>
-        )}
-  {graph.nodes.length > 0 && (
-    <div className="App">
-      <svg
-        ref={svgRef}
-        width={getSizeSvg(WIDTH)}
-        height={getSizeSvg(HEIGHT)}
-        style={{ border: '1px solid #e0e0e0' }}
-      ></svg>
-      <div
-        ref={tooltipRef}
-        style={{
-          position: 'absolute',
-          background: 'white',
-          border: '1px solid #e0e0e0',
-          borderRadius: '5px',
-          padding: '5px',
-          display: 'none',
-          pointerEvents: 'none', // Prevent tooltip from interfering with mouse events
-        }}
-      ></div>
-    </div>)}
+        <Alert severity="warning">Select a pathway to show graph.</Alert>
+      )}
+      {graph.nodes.length > 0 && (
+        <div className="App">
+          <svg
+            ref={svgRef}
+            width={getSizeSvg(WIDTH)}
+            height={getSizeSvg(HEIGHT)}
+            //   style={{ border: '1px solid #e0e0e0' }}
+          ></svg>
+          <div
+            ref={tooltipRef}
+            style={{
+              position: 'absolute',
+              background: 'white',
+              border: '1px solid #e0e0e0',
+              borderRadius: '5px',
+              padding: '5px',
+              display: 'none',
+              pointerEvents: 'none', // Prevent tooltip from interfering with mouse events
+            }}
+          ></div>
+        </div>
+      )}
     </>
   );
 }

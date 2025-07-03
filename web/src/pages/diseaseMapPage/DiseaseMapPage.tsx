@@ -5,9 +5,17 @@ import DiseaseMapGraph from './graphics/DiseaseMapGraph';
 import Typography from '@mui/material/Typography';
 import ResizableSidebarLayout from '../../components/Sidebar/ResizableSidebarLayout';
 import { useTheme } from '@mui/material';
+import { useRecoilState } from 'recoil';
+import stateSelectedNode from '../../state/stateSelectedNode';
+import { useEffect, useState } from 'react';
 
 function DiseaseMapPage() {
   const theme = useTheme();
+  const [selectNode, setSelectedNode] = useRecoilState(stateSelectedNode);
+
+  useEffect(() => {
+    setSelectedNode(null);
+  }, []);
 
   return (
     <>

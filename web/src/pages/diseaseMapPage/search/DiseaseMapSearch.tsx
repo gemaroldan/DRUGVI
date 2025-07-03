@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { useSetRecoilState } from 'recoil';
-//import Box from '@mui/material/Box';
+import { useRecoilState } from 'recoil';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useEffect } from 'react';
@@ -10,7 +9,9 @@ import stateFilterDiseaseMap from '../../../state/stateFilterDiseaseMap';
 
 export default function DiseaseMapSelect() {
   const [diseaseMaps, setDiseasesMaps] = React.useState<DiseaseMap[]>([]);
-  const setFilterDiseaseMap = useSetRecoilState(stateFilterDiseaseMap);
+  const [filterDiseaseMap, setFilterDiseaseMap] = useRecoilState(
+    stateFilterDiseaseMap,
+  );
 
   const handleChangeDiseaseMap = React.useCallback(
     (event: React.SyntheticEvent<Element, Event>, value: DiseaseMap | null) => {
@@ -51,6 +52,7 @@ export default function DiseaseMapSelect() {
       sx={{ width: 450 }}
       options={diseaseMaps}
       autoHighlight
+      value={filterDiseaseMap}
       getOptionLabel={(option) => option.id + '-' + option.name}
       onChange={handleChangeDiseaseMap}
       size="small"

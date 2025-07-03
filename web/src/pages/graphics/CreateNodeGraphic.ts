@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { graphMoving, graphSelected } from '../../theme';
 import Node from '../../types/graphic/Node';
 import { showTooltip, moveTooltip, hideTooltip } from './TooltipNode';
 import {
@@ -127,6 +128,8 @@ export const createLabelsNodes = (
   nodeGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
   nodes: Node[],
   svgSize: SvgSize,
+  tooltip: HTMLDivElement | null,
+  setSelectedNode: any,
 ) => {
   // Añadir etiquetas a los nodos
   nodeGroup
@@ -150,24 +153,18 @@ export const createLabelsNodes = (
     .text((d) => d.properties.name)
     .attr('font-size', '12px')
     .attr('fill', 'black')
-    .on('mousedown', function (event) {
-      const nodoId = this.id.replace('text_', '');
-      const parentChilds = event.currentTarget.parentNode?.childNodes;
-      console.log(parentChilds);
-      let position = -1;
-      parentChilds.forEach((n: any, index: number) => {
-        if (n.id == nodoId) {
-          position = index;
-        }
-      });
-      if (position != -1) {
-        const rect = d3.select(parentChilds[position]);
-        dragHandler(rect);
-      }
-    });
+    .on('click', (event, d) => clickHanderLabel(d, setSelectedNode))
+    .on('mouseover', (event, d) => {
+      showTooltip(tooltip, event, d);
+    })
+    .on('mousemove', (event) => {
+      moveTooltip(tooltip, event);
+    })
+    .on('mouseout', () => hideTooltip(tooltip));
 };
 
 let activeDrag: SVGRectElement | SVGCircleElement | null = null;
+let colorBeforeDragHandler: string = '';
 
 const dragHandler = d3
   .drag<SVGRectElement | SVGCircleElement, unknown>()
@@ -176,16 +173,30 @@ const dragHandler = d3
     function (event: d3.D3DragEvent<SVGRectElement, unknown, unknown>) {
       if (!activeDrag) {
         const nodeId = this.id.replace('text_', '');
+        const defaultColor =
+          this.style.fill == null ? 'green' : this.style.fill;
+        colorBeforeDragHandler =
+          this.tagName === 'rect' && this.getAttribute('fill')
+            ? this.getAttribute('fill')!
+            : defaultColor;
+
         console.log('Init drag:', this.tagName, nodeId);
         console.log(this);
         activeDrag =
           this.tagName == 'circle'
             ? (this as SVGCircleElement)
             : (this as SVGRectElement); // Set active
-        d3.select<SVGRectElement | SVGCircleElement, unknown>(this).attr(
-          'fill',
-          'orange',
-        );
+        if (this.tagName == 'circle') {
+          d3.select<SVGRectElement | SVGCircleElement, unknown>(this).style(
+            'fill',
+            graphMoving,
+          );
+        } else {
+          d3.select<SVGRectElement | SVGCircleElement, unknown>(this).attr(
+            'fill',
+            graphMoving,
+          );
+        }
       }
     },
   )
@@ -278,14 +289,15 @@ const dragHandler = d3
         console.log('Finalizando el arrastre de:', this.id, this.tagName);
         activeDrag = null; // Liberar el rectángulo activo
         if (this.tagName == 'circle') {
-          d3.select<SVGRectElement | SVGCircleElement, unknown>(this).attr(
+          d3.select<SVGRectElement | SVGCircleElement, unknown>(this).style(
             'fill',
-            'white',
+            colorBeforeDragHandler,
           );
         } else {
           d3.select<SVGRectElement | SVGCircleElement, unknown>(this).attr(
             'fill',
-            'lightblue',
+            //'lightblue',
+            colorBeforeDragHandler,
           );
         }
       }
@@ -307,15 +319,19 @@ function selectEndLiksByNode(nodoId: string) {
   return d3.selectAll<SVGLineElement, unknown>(selector);
 }
 
+const clickHanderLabel = (
+  data: Node,
+  setSelectedNode: (node: Node) => void,
+) => {
+  setSelectedNode(data);
+};
+
 const clickHander = (
   event: D3Event<MouseEvent, SVGGElement>,
   node: Node,
-  setSelectedNode: any,
+  setSelectedNode: (node: Node) => void,
 ) => {
   if (event.defaultPrevented) return;
-  // alert(`Node clicked: ${node.properties.name}`);
-  if (event.defaultPrevented) return;
-  // alert(`Node clicked: ${node.properties.name}`);
   setSelectedNode(node);
 };
 
@@ -325,9 +341,14 @@ export const highlightNodes = (
 ) => {
   clearHighlightNodes(svg);
   nodes.forEach((n) => {
-    const searchNode = svg.select('rect#' + getNodeId(n));
-    if (searchNode != null) {
-      searchNode.attr('fill', 'orange');
+    if (n.properties?.shape == 'metabolite') {
+      const searchNodeMet = svg.select('circle#' + getNodeId(n));
+      searchNodeMet.style('fill', 'orange');
+    } else {
+      const searchNode = svg.select('rect#' + getNodeId(n));
+      if (searchNode != null) {
+        searchNode.attr('fill', 'orange');
+      }
     }
   });
 };
@@ -337,4 +358,33 @@ export const clearHighlightNodes = (
 ) => {
   const selector = `rect[id^="NPathway_N"]`;
   svg.selectAll(selector).attr('fill', 'lightblue');
+
+  const selectorMet = `circle[id^="NPathway_N"]`;
+  svg.selectAll(selectorMet).style('fill', '');
+};
+
+export const setSelectNodeColor = (
+  svg: d3.Selection<SVGSVGElement | null, unknown, null, undefined>,
+  node: Node,
+) => {
+  clearSelectNodeColor(svg);
+  if (node.properties?.shape == 'metabolite') {
+    const searchNodeMet = svg.select('circle#' + getNodeId(node));
+    searchNodeMet.attr('stroke', graphSelected).attr('stroke-width', 5);
+  } else {
+    const searchNode = svg.select('rect#' + getNodeId(node));
+    if (searchNode != null) {
+      searchNode.attr('stroke', graphSelected).attr('stroke-width', 5);
+    }
+  }
+};
+
+export const clearSelectNodeColor = (
+  svg: d3.Selection<SVGSVGElement | null, unknown, null, undefined>,
+) => {
+  const selector = `rect[stroke="${graphSelected}"]`;
+  svg.selectAll(selector).attr('stroke', 'white').attr('stroke-width', 2);
+
+  const selectorMet = `circle[stroke="${graphSelected}"]`;
+  svg.selectAll(selectorMet).attr('stroke', 'grey').attr('stroke-width', 2);
 };

@@ -17,6 +17,7 @@ export function useGraphData(
       try {
         // const graphData = await fetchData(filters, abortController.signal);
         setSvgSize(getMaxValues(graph.nodes));
+        console.log(getMaxValues(graph.nodes));
         // setGraph(graph);
       } catch (error) {
         if (!abortController.signal.aborted) console.error(error);
@@ -26,7 +27,7 @@ export function useGraphData(
   }, [graph]);
 }
 
-export function getMaxValues(nodes: Node[]): SvgSize {
+/*export function getMaxValues(nodes: Node[]): SvgSize {
   return nodes.reduce(
     (acc, n) => {
       acc.maxW = Math.max(acc.maxW, n.properties?.x || 0);
@@ -37,4 +38,39 @@ export function getMaxValues(nodes: Node[]): SvgSize {
     },
     { minW: 100, maxW: 0, minH: 100, maxH: 0, marginW: 10, marginH: 10 },
   );
+}*/
+
+export function getMaxValues(nodes: Node[]): SvgSize {
+  const result: SvgSize = {
+    minW: 100,
+    maxW: 0,
+    minH: 100,
+    maxH: 0,
+    marginW: 10,
+    marginH: 10,
+  };
+
+  if (nodes.length > 0) {
+    nodes.map((n) => {
+      result.maxW = Math.max(
+        result.maxW,
+        'x' in n.properties ? n.properties.x : 0,
+      );
+      result.maxH = Math.max(
+        result.maxH,
+        'y' in n.properties ? n.properties.y : 0,
+      );
+      result.minW = Math.min(
+        result.minW,
+        'x' in n.properties ? n.properties.x : 100,
+      );
+      result.minH = Math.min(
+        result.minH,
+        'y' in n.properties ? n.properties.y : 100,
+      );
+    });
+    result.marginW = result.minW + 40;
+    result.marginH = result.minH + 40;
+  }
+  return result;
 }

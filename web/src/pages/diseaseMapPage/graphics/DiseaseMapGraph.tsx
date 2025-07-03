@@ -1,6 +1,6 @@
 import WebClient from '../../../client/WebClient';
 
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import stateFilterDiseaseMap from '../../../state/stateFilterDiseaseMap';
 import { useEffect } from 'react';
 import React from 'react';
@@ -17,11 +17,68 @@ import RouteIcon from '@mui/icons-material/Route';
 import PolylineIcon from '@mui/icons-material/Polyline';
 import { HtmlTooltip } from '../../../components/Form/HtmlTooltip';
 import Button from '@mui/material/Button';
+import Node from '../../../types/graphic/Node';
+import stateSelectedNode from '../../../state/stateSelectedNode';
+import NPathway from '../../../types/graphic/NPathway';
+import List from '@mui/material/List/List';
+import ListItem from '@mui/material/ListItem/ListItem';
+import ListItemButton from '@mui/material/ListItemButton/ListItemButton';
+import ListItemText from '@mui/material/ListItemText/ListItemText';
 
 function DiseaseMapGraph() {
   const filterDiseaseMap = useRecoilValue(stateFilterDiseaseMap);
   const [diseaseMapGraphData, setDiseaseMapGraphData] =
     React.useState<DiseaseMap>();
+  const setSelectedNode = useSetRecoilState(stateSelectedNode);
+
+  const getNPathwayFromCircuitId = (circuitId: string): string => {
+    if (!circuitId.startsWith('P.hsa')) {
+      return circuitId;
+    }
+    const parts: string[] = circuitId.replace('P.hsa', '').split('.');
+    if (parts.length === 0) return '';
+
+    const main: string = parts[0];
+    const rest: string[] = parts.slice(1);
+
+    let transformed: string = `N-hsa${main}`;
+    if (rest.length > 0) {
+      transformed += `-${rest[0]}`;
+    }
+    if (rest.length > 1) {
+      transformed += ` ${rest.slice(1).join(' ')}`;
+    }
+
+    return transformed;
+  };
+
+  const findPathwayByNodeName = (
+    pathwayId: string,
+    item: string,
+  ): Node | null => {
+    if (!diseaseMapGraphData?.circuits) return null;
+
+    const circuitData = diseaseMapGraphData?.circuits?.[pathwayId];
+
+    if (!circuitData) {
+      console.warn(`No se encontró circuitData para pathwayId: ${pathwayId}`);
+      return null;
+    }
+    const transformed = getNPathwayFromCircuitId(item);
+
+    const matchedNode = circuitData.subpathways.nodes.find(
+      (node: any) => node.properties?.id === transformed,
+    );
+
+    return matchedNode || null;
+  };
+
+  function handlerSelectedRelPathway(pathwayId: string, item: string) {
+    const nodePath =
+      item != null ? findPathwayByNodeName(pathwayId, item) : null;
+
+    setSelectedNode(nodePath);
+  }
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -68,15 +125,40 @@ function DiseaseMapGraph() {
 
                     <HtmlTooltip
                       title={
-                        <ul style={{ paddingLeft: '1.2em', margin: 0 }}>
-                          {Array.isArray(circuitData.circuit)
-                            ? circuitData.circuit.map(
-                                (item: string, index: number) => (
-                                  <li key={index}>{item}</li>
-                                ),
-                              )
-                            : null}
-                        </ul>
+                        <>
+                          <List
+                            sx={{
+                              margin: 0,
+                              listStyleType: 'none',
+                              maxHeight: '250px',
+                              overflowY: 'auto',
+                              padding: 0,
+                            }}
+                            component="ul"
+                          >
+                            {Array.isArray(circuitData.circuit)
+                              ? circuitData.circuit.map(
+                                  (item: string, index: number) => (
+                                    <ListItem
+                                      key={index}
+                                      disablePadding
+                                      component="li"
+                                      title="Click to show detail node"
+                                      onClick={() =>
+                                        handlerSelectedRelPathway(
+                                          pathwayId,
+                                          item,
+                                        )
+                                      }
+                                      sx={{ cursor: 'pointer' }}
+                                    >
+                                      <ListItemText primary={item} />
+                                    </ListItem>
+                                  ),
+                                )
+                              : null}
+                          </List>
+                        </>
                       }
                     >
                       <Button>show circuits</Button>
@@ -97,25 +179,6 @@ function DiseaseMapGraph() {
             ),
           )
         : null}
-
-      {/*diseaseMapGraphData && diseaseMapGraphData.circuits
-        ? diseaseMapGraphData.circuits.map(
-            (pathwayCircuit: PathwayCircuit, index: number) => (
-              <div key={index}>
-                <div>{pathwayCircuit.pathway_id}</div>
-                {/*pathwayCircuit.pathway_id && (
-                  <GenericGraph
-                    graphKey={pathwayCircuit.pathway_id} // Pass as a separate prop
-                    graph={pathwayCircuit.subpathways}
-                    createNodes={createNodes}
-                    createLinks={createRelationships}
-                    createLabelsNodes={undefined}
-                  />
-                )}
-              </div>
-            ),
-          )
-        : null*/}
     </>
   );
 }

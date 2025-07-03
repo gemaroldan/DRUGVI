@@ -1,12 +1,16 @@
 // GenericGraph.tsx
 import { useRef, useState, useEffect } from 'react';
 import * as d3 from 'd3';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import stateSelectedNode from '../../../state/stateSelectedNode';
 import { useGraphData } from './useGraphData';
 import GraphData from '../../../types/graphic/GraphData';
 import SvgSize from '../../../types/graphic/SvgSize';
-import { createLabelsNodes } from '../../graphics/CreateNodeGraphic';
+import {
+  clearSelectNodeColor,
+  createLabelsNodes,
+  setSelectNodeColor,
+} from '../../graphics/CreateNodeGraphic';
 
 const WIDTH = 'WIDTH';
 const HEIGHT = 'HEIGHT';
@@ -44,7 +48,15 @@ function renderGraph(
       const linkGroup = svg.append('g').attr('class', 'links');
 
       createNodes(nodeGroup, graph.nodes, tooltip, svgSize, handleSelectedNode);
-      createLabelsNodes(nodeGroup, graph.nodes, svgSize);
+      createLabelsNodes(
+        nodeGroup,
+        graph.nodes
+          ? graph.nodes.filter((n) => n.labels[0] != 'Function')
+          : graph.nodes,
+        svgSize,
+        tooltip,
+        handleSelectedNode,
+      );
       createLinks(svg, linkGroup, graph.links, graph.nodes, tooltip, svgSize);
     }
   }, [graph, svgSize]);
@@ -56,7 +68,7 @@ function GenericGraph({
   createNodes,
   createLinks,
 }: GenericGraphProps) {
-  const setSelectedNode = useSetRecoilState(stateSelectedNode);
+  const [selectedNode, setSelectedNode] = useRecoilState(stateSelectedNode);
   //const [graph, setGraph] = useState<GraphData>({ nodes: [], links: [] });
   const svgRef = useRef<SVGSVGElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -86,13 +98,22 @@ function GenericGraph({
     handleSelectedNode,
   );
 
+  useEffect(() => {
+    const svg = d3.select(svgRef.current);
+    if (selectedNode == null) {
+      clearSelectNodeColor(svg);
+    } else {
+      setSelectNodeColor(svg, selectedNode);
+    }
+  }, [selectedNode]);
+
   return (
     <div className={`GraphContainer{key}`}>
       <svg
         ref={svgRef}
         width={getSizeSvg(WIDTH, svgSize)}
         height={getSizeSvg(HEIGHT, svgSize)}
-        style={{ border: '1px solid #e0e0e0' }}
+        // style={{ border: '1px solid #e0e0e0' }}
       >
         {' '}
       </svg>

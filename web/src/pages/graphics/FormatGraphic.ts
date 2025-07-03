@@ -60,6 +60,12 @@ export const getNewLocation = (
   svgSize: SvgSize,
 ): number => {
   const height = svgSize.maxH - svgSize.minH + svgSize.marginH;
+  if (label == 'TJP1 YBX3 CDK4') {
+    console.log(label, height);
+    console.log(newX);
+    console.log(newY);
+  }
+
   switch (shape) {
     case 'rect':
       return loc == X
