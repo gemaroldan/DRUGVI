@@ -143,10 +143,8 @@ export const CiteModal: React.FC<Props> = ({ open, closeModal }) => {
                   C., Esteban-Medina, M., Alamo- Alvarez, I., Peña-Chilet, M., &
                   Dopazo, J. (2021). Genome-scale mechanistic modeling of
                   signaling pathways made easy: A bioconductor/cytoscape/web
-                  server framework Gema Roldán González Visualizador para el
-                  descubrimiento y el reposicionamiento de fármacos 35 for the
-                  analysis of omic data. Computational and Structural
-                  Biotechnology Journal, 19, 2968-2978.
+                  server framework for the analysis of omic data. Computational
+                  and Structural Biotechnology Journal, 19, 2968-2978.
                   {'  '}
                   <Link
                     href="https://doi.org/10.1016/j.csbj.2021.05.022"

@@ -313,8 +313,7 @@ function Privacy() {
             To ensure compliance with the GDPR and Spanish legislation: <br /> •
             It has been verified that no personally identifiable data is used.
             <br /> • The source, license, and type of data processed are
-            documented in Table 1 Data Source. Gema Roldán González Visualizer
-            for Drug Discovery and Repositioning 39 <br /> • The visualizer only
+            documented in Table 1 Data Source. <br /> • The visualizer only
             allows the visualization of anonymized or simulated data. <br /> •
             The source code and results will be published under a non-commercial
             license compatible with academic research (CC BY-NC 4.0).
