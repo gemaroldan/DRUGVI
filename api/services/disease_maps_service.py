@@ -47,12 +47,12 @@ def disease_map_transform(data):
         if key:
             if key not in result:
                 result[key] = {
-                    'circuit': [id_completo],
+                    'circuits': [id_completo],
                     'subpathways': {}
                 }
             else:
-                if id_completo not in result[key]['circuit']:
-                    result[key]['circuit'].append(id_completo)
+                if id_completo not in result[key]['circuits']:
+                    result[key]['circuits'].append(id_completo)
     return result
 
 
@@ -101,7 +101,7 @@ def get_disease_map(disease_map_id):
         subpathways_disease_map = {}
         list_pathways_ids.append(key);
 
-        for circuit_id in data['circuit']:
+        for circuit_id in data['circuits']:
             # From name circuit get list de n-pathways
             list_n_pathways = get_all_n_pathways_id(circuit_id)
             
@@ -123,7 +123,7 @@ def get_disease_map(disease_map_id):
     for key, data in pathways_circuits.items(): 
         pathways_circuits[key]["name"] =  next((p["name"] for p in pathways if p["id"] == key), None)
 
-    disease_map["circuits"] = pathways_circuits
+    disease_map["diseaseCircuits"] = pathways_circuits
     return disease_map 
 
 

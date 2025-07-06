@@ -19,17 +19,17 @@ import { HtmlTooltip } from '../../../components/Form/HtmlTooltip';
 import Button from '@mui/material/Button';
 import Node from '../../../types/graphic/Node';
 import stateSelectedNode from '../../../state/stateSelectedNode';
-import NPathway from '../../../types/graphic/NPathway';
 import List from '@mui/material/List/List';
 import ListItem from '@mui/material/ListItem/ListItem';
-import ListItemButton from '@mui/material/ListItemButton/ListItemButton';
 import ListItemText from '@mui/material/ListItemText/ListItemText';
+import DiseaseCircuit from '../../../types/DiseaseCircuit';
 
 function DiseaseMapGraph() {
   const filterDiseaseMap = useRecoilValue(stateFilterDiseaseMap);
   const [diseaseMapGraphData, setDiseaseMapGraphData] =
     React.useState<DiseaseMap>();
   const setSelectedNode = useSetRecoilState(stateSelectedNode);
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   const getNPathwayFromCircuitId = (circuitId: string): string => {
     if (!circuitId.startsWith('P.hsa')) {
@@ -56,9 +56,9 @@ function DiseaseMapGraph() {
     pathwayId: string,
     item: string,
   ): Node | null => {
-    if (!diseaseMapGraphData?.circuits) return null;
+    if (!diseaseMapGraphData?.diseaseCircuits) return null;
 
-    const circuitData = diseaseMapGraphData?.circuits?.[pathwayId];
+    const circuitData = diseaseMapGraphData?.diseaseCircuits?.[pathwayId];
 
     if (!circuitData) {
       console.warn(`No se encontró circuitData para pathwayId: ${pathwayId}`);
@@ -67,7 +67,7 @@ function DiseaseMapGraph() {
     const transformed = getNPathwayFromCircuitId(item);
 
     const matchedNode = circuitData.subpathways.nodes.find(
-      (node: any) => node.properties?.id === transformed,
+      (node: Node) => node.properties?.id === transformed,
     );
 
     return matchedNode || null;
@@ -85,15 +85,18 @@ function DiseaseMapGraph() {
     (async () => {
       try {
         if (filterDiseaseMap != null) {
+          setLoading(true);
           const diseaseMapGraphData = await WebClient.getDiseaseMapGraphData(
             filterDiseaseMap.id,
             abortController.signal,
           );
+          setLoading(false);
           setDiseaseMapGraphData(diseaseMapGraphData);
-        } /*else {
-          setDiseaseMapGraphData(undefined);
-        }*/
+        } else {
+          setDiseaseMapGraphData(null as unknown as DiseaseMap);
+        }
       } catch (error) {
+        setLoading(false);
         if (!abortController.signal.aborted) console.error(error);
       }
     })();
@@ -102,26 +105,28 @@ function DiseaseMapGraph() {
 
   return (
     <>
-      {!diseaseMapGraphData && (
+      {!diseaseMapGraphData && !loading && (
         <Alert severity="warning">Select disease map to show graph.</Alert>
       )}
 
-      {diseaseMapGraphData && diseaseMapGraphData.circuits
-        ? Object.entries(diseaseMapGraphData.circuits).map(
-            ([pathwayId, circuitData]: [string, any]) => (
+      {loading && <>loading...</>}
+
+      {diseaseMapGraphData && diseaseMapGraphData.diseaseCircuits
+        ? Object.entries(diseaseMapGraphData.diseaseCircuits).map(
+            ([pathwayId, diseaseCircuit]: [string, DiseaseCircuit]) => (
               <div key={pathwayId}>
                 <Box display="flex" alignItems="center" gap={1}>
                   <RouteIcon fontSize="small" />
                   <Label>Pathway:</Label>
                   <Value>
-                    {pathwayId} - {circuitData.name}
+                    {pathwayId} - {diseaseCircuit.name}
                   </Value>
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
                   <PolylineIcon fontSize="small" />
                   <Label>Num circuits: </Label>
                   <Value>
-                    {circuitData.circuit.length}
+                    {diseaseCircuit.circuits?.length}
 
                     <HtmlTooltip
                       title={
@@ -136,8 +141,8 @@ function DiseaseMapGraph() {
                             }}
                             component="ul"
                           >
-                            {Array.isArray(circuitData.circuit)
-                              ? circuitData.circuit.map(
+                            {Array.isArray(diseaseCircuit.circuits)
+                              ? diseaseCircuit.circuits.map(
                                   (item: string, index: number) => (
                                     <ListItem
                                       key={index}
@@ -168,7 +173,7 @@ function DiseaseMapGraph() {
 
                 <GenericGraph
                   graphKey={`${pathwayId}`}
-                  graph={circuitData.subpathways}
+                  graph={diseaseCircuit.subpathways}
                   createNodes={createNodes}
                   createLinks={createRelationships}
                   createLabelsNodes={undefined}

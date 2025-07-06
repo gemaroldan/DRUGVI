@@ -16,9 +16,20 @@
     "plugin:prettier/recommended"
   ],
   "rules": {
-    "prettier/prettier": ["error", { "endOfLine": "auto" }],
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
     "react/react-in-jsx-scope": "off", // No es necesario importar React con JSX en versiones recientes
-    "@typescript-eslint/explicit-module-boundary-types": "off" // Desactiva tipos explícitos en funciones
+    "@typescript-eslint/explicit-module-boundary-types": "off", // Desactiva tipos explícitos en funciones
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ]
   },
   "settings": {
     "react": {

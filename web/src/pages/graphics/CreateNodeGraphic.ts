@@ -15,6 +15,22 @@ import {
 } from './FormatGraphic';
 import SvgSize from '../../types/graphic/SvgSize';
 
+export type CreateNodesFn = (
+  nodeGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
+  nodes: Node[],
+  tooltip: HTMLDivElement | null,
+  svgSize: SvgSize,
+  setSelectedNode: (node: Node) => void,
+) => void;
+
+export type CreateLabelsNodesFn = (
+  nodeGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
+  nodes: Node[],
+  svgSize: SvgSize,
+  tooltip: HTMLDivElement | null,
+  setSelectedNode: (node: Node) => void,
+) => void;
+
 export const typeNode = {
   NPATHWAY: 'NPathway',
   METABOLITE: 'Metabolite',
@@ -31,7 +47,7 @@ export const createNodes = (
   nodes: Node[],
   tooltip: HTMLDivElement | null,
   svgSize: SvgSize,
-  setSelectedNode: any,
+  setSelectedNode: (node: Node) => void,
 ) => {
   nodes.forEach((node, i) => {
     const shape = getShape(node);
@@ -55,7 +71,12 @@ export const createNodes = (
           moveTooltip(tooltip, event);
         })
         .on('mouseout', () => hideTooltip(tooltip))
-        .call(dragHandler as any);
+        //.call(dragHandler);
+        .call(
+          dragHandler as unknown as (
+            selection: d3.Selection<SVGCircleElement, unknown, null, undefined>,
+          ) => void,
+        );
 
       if (X in node.properties) {
         nodeGroup
@@ -86,7 +107,12 @@ export const createNodes = (
           moveTooltip(tooltip, event);
         })
         .on('mouseout', () => hideTooltip(tooltip))
-        .call(dragHandler as any);
+        //       .call(dragHandler as any);
+        .call(
+          dragHandler as unknown as (
+            selection: d3.Selection<SVGRectElement, unknown, null, undefined>,
+          ) => void,
+        );
     } else if (shape === 'triangle') {
       const size = getNodeRadius(node.labels[0]); // Tamaño para el triángulo
       const points = `${(i + 1) * 100},${300 - size} ${(i + 1) * 100 - size},${300 + size} ${(i + 1) * 100 + size},${300 + size}`;
@@ -110,7 +136,17 @@ export const createNodes = (
           moveTooltip(tooltip, event);
         })
         .on('mouseout', () => hideTooltip(tooltip))
-        .call(dragHandler as any);
+        //.call(dragHandler as any);
+        .call(
+          dragHandler as unknown as (
+            selection: d3.Selection<
+              SVGPolygonElement,
+              unknown,
+              null,
+              undefined
+            >,
+          ) => void,
+        );
     }
   });
 };
@@ -129,7 +165,7 @@ export const createLabelsNodes = (
   nodes: Node[],
   svgSize: SvgSize,
   tooltip: HTMLDivElement | null,
-  setSelectedNode: any,
+  setSelectedNode: (node: Node) => void,
 ) => {
   // Añadir etiquetas a los nodos
   nodeGroup
@@ -153,7 +189,7 @@ export const createLabelsNodes = (
     .text((d) => d.properties.name)
     .attr('font-size', '12px')
     .attr('fill', 'black')
-    .on('click', (event, d) => clickHanderLabel(d, setSelectedNode))
+    .on('click', (_, d) => clickHanderLabel(d, setSelectedNode))
     .on('mouseover', (event, d) => {
       showTooltip(tooltip, event, d);
     })
@@ -170,9 +206,9 @@ const dragHandler = d3
   .drag<SVGRectElement | SVGCircleElement, unknown>()
   .on(
     'start',
-    function (event: d3.D3DragEvent<SVGRectElement, unknown, unknown>) {
+    function (_event: d3.D3DragEvent<SVGRectElement, unknown, unknown>) {
       if (!activeDrag) {
-        const nodeId = this.id.replace('text_', '');
+        //const nodeId = this.id.replace('text_', '');
         const defaultColor =
           this.style.fill == null ? 'green' : this.style.fill;
         colorBeforeDragHandler =
@@ -180,8 +216,8 @@ const dragHandler = d3
             ? this.getAttribute('fill')!
             : defaultColor;
 
-        console.log('Init drag:', this.tagName, nodeId);
-        console.log(this);
+        //console.log('Init drag:', this.tagName, nodeId);
+        //console.log(this);
         activeDrag =
           this.tagName == 'circle'
             ? (this as SVGCircleElement)
@@ -279,14 +315,14 @@ const dragHandler = d3
   .on(
     'end',
     function (
-      event: d3.D3DragEvent<
+      _event: d3.D3DragEvent<
         SVGRectElement | SVGCircleElement,
         unknown,
         unknown
       >,
     ) {
       if (activeDrag === this) {
-        console.log('Finalizando el arrastre de:', this.id, this.tagName);
+        //console.log('Finalizando el arrastre de:', this.id, this.tagName);
         activeDrag = null; // Liberar el rectángulo activo
         if (this.tagName == 'circle') {
           d3.select<SVGRectElement | SVGCircleElement, unknown>(this).style(

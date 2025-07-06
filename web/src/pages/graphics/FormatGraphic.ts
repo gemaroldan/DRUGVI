@@ -8,20 +8,27 @@ export const Y = 'y';
 
 export const MOV_LABEL_METABOLITE = 25;
 
-const MIN_SIZE: any = {
+export type ShapeType = 'rect' | 'circle';
+type Axis = 'x' | 'y';
+type Size = {
+  x: number;
+  y: number;
+};
+
+const MIN_SIZE: Record<ShapeType, Size> = {
   rect: {
     x: 45,
     y: 25,
   },
   circle: {
-    X: 15,
+    x: 15,
     y: 15,
   },
 };
 
 export const calculateSize = (
-  loc: string,
-  shape: string,
+  loc: Axis,
+  shape: ShapeType,
   name: string = '',
 ): number => {
   return Math.max(MIN_SIZE[shape][loc], name.length * 8);
@@ -60,12 +67,6 @@ export const getNewLocation = (
   svgSize: SvgSize,
 ): number => {
   const height = svgSize.maxH - svgSize.minH + svgSize.marginH;
-  if (label == 'TJP1 YBX3 CDK4') {
-    console.log(label, height);
-    console.log(newX);
-    console.log(newY);
-  }
-
   switch (shape) {
     case 'rect':
       return loc == X

@@ -1,10 +1,11 @@
-import PathwayCircuit from './PathwayCircuit';
+import DiseaseCircuit from './DiseaseCircuit';
+import PathwayCircuit from './DiseaseCircuit';
 
 interface DiseaseMap {
   id: string;
   name: string;
   description?: string;
-  circuits?: PathwayCircuit;
+  diseaseCircuits?: Record<string, DiseaseCircuit> | null;
 }
 
 export default DiseaseMap;

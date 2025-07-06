@@ -35,7 +35,7 @@ export default function EffectorGeneSelect() {
     const abortController = new AbortController();
     (async () => {
       try {
-        console.log('clear filter effector gene');
+        //console.log('clear filter effector gene');
         if (filterPathway != null) {
           const genes = await WebClient.getEffectorGenes(
             filterPathway.id,

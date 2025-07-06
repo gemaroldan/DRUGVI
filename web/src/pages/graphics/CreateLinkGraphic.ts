@@ -9,8 +9,18 @@ import {
   X,
   Y,
   getNodeId,
+  ShapeType,
 } from './FormatGraphic';
 import SvgSize from '../../types/graphic/SvgSize';
+
+export type createRelationshipsFn = (
+  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+  linkGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
+  relationships: Relationship[],
+  nodes: Node[],
+  tooltip: HTMLDivElement | null,
+  svgSize: SvgSize,
+) => void;
 
 const ACTIVATION = 'activation';
 //const INHIBITION = 'inhibition';
@@ -40,8 +50,9 @@ const calculateLinkPosition = (
     const dx = x2 - x1;
     const dy = y2 - y1;
     const width =
-      calculateSize(X, getShape(source), source.properties.name) / 2;
-    const height = calculateSize(Y, getShape(source)) / 2;
+      calculateSize(X, getShape(source) as ShapeType, source.properties.name) /
+      2;
+    const height = calculateSize(Y, getShape(source) as ShapeType) / 2;
     const scale = Math.min(Math.abs(width / dx), Math.abs(height / dy));
     x1 += dx * scale;
     y1 += dy * scale;
@@ -58,8 +69,9 @@ const calculateLinkPosition = (
     const dx = x1 - x2;
     const dy = y1 - y2;
     const width =
-      calculateSize(X, getShape(target), target.properties.name) / 2;
-    const height = calculateSize(Y, getShape(target)) / 2;
+      calculateSize(X, getShape(target) as ShapeType, target.properties.name) /
+      2;
+    const height = calculateSize(Y, getShape(target) as ShapeType) / 2;
     const scale = Math.min(Math.abs(width / dx), Math.abs(height / dy));
     x2 += dx * scale;
     y2 += dy * scale;

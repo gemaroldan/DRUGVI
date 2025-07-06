@@ -4,7 +4,7 @@ import Pathway from '../types/Pathway';
 import DiseaseMap from '../types/DiseaseMap';
 import Node from '../types/graphic/Node';
 import Circuit from '../types/Circuit';
-import PathwayCircuit from '../types/PathwayCircuit';
+import DiseaseCircuit from '../types/DiseaseCircuit';
 
 function normalizeApiUrl(url: string) {
   return url.endsWith('/') ? url : `${url}/`;
@@ -15,7 +15,7 @@ const API_ENDPOINT = normalizeApiUrl(Configuration.API_ENDPOINT);
 class WebClient {
   /***** DISEASE MAP ****/
 
-  static translateFromServerDiseaseMap(diseasesMap: any): DiseaseMap {
+  /*static translateFromServerDiseaseMap(diseasesMap: any): DiseaseMap {
     return {
       id: diseasesMap.id,
       name: diseasesMap.name,
@@ -39,9 +39,39 @@ class WebClient {
             )
           : null,
     };
-  }
+  }*/
 
-  static translateFromServePathwayCircuit(pathwayCircuit: any): PathwayCircuit {
+  static translateFromServerDiseaseMap(diseasesMap: DiseaseMap): DiseaseMap {
+    return {
+      id: diseasesMap.id,
+      name: diseasesMap.name,
+      description: diseasesMap.description,
+      diseaseCircuits: this.translateServerDiseaseCircuits(
+        diseasesMap.diseaseCircuits,
+      ),
+      /*
+        diseasesMap.diseaseCircuit &&
+        typeof diseasesMap.diseaseCircuit === 'object'
+          ? Object.entries(diseasesMap.diseaseCircuit).reduce(
+              (acc: Record<string, DiseaseCircuit>, [key, pCircuit]) => {
+                acc[key] = {
+                  circuits: Array.isArray(pCircuit.circuits)
+                    ? [...pCircuit.circuits]
+                    : [],
+                  subpathways: WebClient.translateFromServerGraphData(
+                    pCircuit.subpathways,
+                  ),
+                  name: pCircuit.name ?? '',
+                };
+                return acc;
+              },
+              {},
+            )
+          : null,*/
+    };
+  }
+  /*
+  static translateFromServePathwayCircuit(pathwayCircuit: any): DiseaseCircuit {
     return {
       pathway_id: pathwayCircuit.id,
       p_patwhays: Array.isArray(pathwayCircuit.p_pathways)
@@ -53,6 +83,42 @@ class WebClient {
         pathwayCircuit.subpathways,
       ),
     };
+  }*/
+
+  static translateServerDiseaseCircuits(
+    rawCircuits: Record<string, any> | null | undefined,
+  ): Record<string, DiseaseCircuit> | null {
+    if (!rawCircuits || typeof rawCircuits !== 'object') return null;
+
+    return Object.entries(rawCircuits).reduce(
+      (acc, [key, pCircuit]) => {
+        const [translatedKey, translatedCircuit] = this.translateServerCircuit(
+          key,
+          pCircuit,
+        );
+        acc[translatedKey] = translatedCircuit;
+        return acc;
+      },
+      {} as Record<string, DiseaseCircuit>,
+    );
+  }
+
+  static translateServerCircuit(
+    key: string,
+    pCircuit: any,
+  ): [string, DiseaseCircuit] {
+    return [
+      key,
+      {
+        circuits: Array.isArray(pCircuit.circuits)
+          ? [...pCircuit.circuits]
+          : [],
+        subpathways: WebClient.translateFromServerGraphData(
+          pCircuit.subpathways,
+        ),
+        name: pCircuit.name ?? '',
+      },
+    ];
   }
 
   static translateFromServerCircuit(circuit: any): Circuit {
@@ -84,7 +150,6 @@ class WebClient {
   ): Promise<DiseaseMap> {
     const params = {};
     //const userParam = encodeURIComponent(userId);
-    console.log(diseaseMapId);
     const url = `diseases-maps/${diseaseMapId}`;
     const response = await WebClient.get<any>(url, params, abortSignal);
     if (!response) {
@@ -144,7 +209,7 @@ class WebClient {
   ): Promise<GraphData> {
     const params = {};
     //const userParam = encodeURIComponent(userId);
-    console.log(pathwayId);
+    //console.log(pathwayId);
     const url = `pathways/N-${pathwayId}-`;
     const response = await WebClient.get<any>(url, params, abortSignal);
     if (!response) {

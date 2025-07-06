@@ -13,7 +13,7 @@ export default function PathwaySelect() {
   //const [pathways, setPathways] = React.useState<Pathway[]>([]);
   const [pathways, setPathways] = useRecoilState(statePathways);
   const [filterPathway, setFilterPathway] = useRecoilState(stateFilterPathway);
-  const [selectNode, setSelectedNode] = useRecoilState(stateSelectedNode);
+  const setSelectedNode = useSetRecoilState(stateSelectedNode);
 
   useEffect(() => {
     setSelectedNode(null);

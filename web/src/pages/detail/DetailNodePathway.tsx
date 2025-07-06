@@ -31,7 +31,7 @@ function DetailNodePathway() {
   const selectedNode = useRecoilValue(stateSelectedNode);
   const [detailSelectedNode, setDetailSelectedNode] =
     useState<DetailNPathway | null>();
-  console.log(selectedNode);
+  //console.log(selectedNode);
   const setSelectedNode = useSetRecoilState(stateSelectedNode);
 
   function handlerSelectedRelPathway(npathway: NPathway | null) {
@@ -113,16 +113,17 @@ function DetailNodePathway() {
           <Accordion defaultExpanded expanded={true}>
             <AccordionSummary aria-controls="panel1-content" id="panel1-header">
               Selected NPathway:
-              <IconButton
-                onClick={(e) => handlerSelectedRelPathway(null)}
-                title="Clear selected node"
-                size="small"
-                sx={{ position: 'absolute', top: 8, right: 8 }}
-                aria-label="close"
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
             </AccordionSummary>
+
+            <IconButton
+              onClick={() => handlerSelectedRelPathway(null)}
+              title="Clear selected node"
+              size="small"
+              sx={{ position: 'absolute', top: 8, right: 8 }}
+              aria-label="close"
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
             <AccordionDetails>
               <Label>Id: </Label>
               <Value>
@@ -165,7 +166,7 @@ function DetailNodePathway() {
                     'genes' in detailSelectedNode &&
                     detailSelectedNode?.genes &&
                     detailSelectedNode?.genes.map((g, i) => (
-                      <p key={`p_${i}`}>
+                      <span key={`p_${i}`}>
                         <Box
                           display="flex"
                           alignItems="center"
@@ -237,7 +238,7 @@ function DetailNodePathway() {
                             </Link>
                           </Value>
                         </>
-                      </p>
+                      </span>
                     ))}
                 </AccordionDetails>
               </Accordion>
@@ -258,7 +259,7 @@ function DetailNodePathway() {
                   {detailSelectedNode &&
                     detailSelectedNode.drugs &&
                     detailSelectedNode.drugs.map((d: Drug, i) => (
-                      <p key={`d_${i}`}>
+                      <span key={`drug_${i}`}>
                         <Box
                           display="flex"
                           alignItems="center"
@@ -293,7 +294,7 @@ function DetailNodePathway() {
                             <Value key={`syn_drug_${i}`}>{synonym}</Value>
                           ))}
                         </div>
-                      </p>
+                      </span>
                     ))}
                 </AccordionDetails>
               </Accordion>
@@ -314,7 +315,7 @@ function DetailNodePathway() {
                   {detailSelectedNode &&
                     detailSelectedNode.proteins &&
                     detailSelectedNode.proteins.map((p: Protein, i) => (
-                      <>
+                      <span key={`prot_${i}`}>
                         <Box
                           display="flex"
                           alignItems="center"
@@ -352,7 +353,7 @@ function DetailNodePathway() {
                             <Value key={`ext_id${i}`}>{ext_id}</Value>
                           ))}
                         </div>
-                      </>
+                      </span>
                     ))}
                 </AccordionDetails>
               </Accordion>
@@ -372,9 +373,11 @@ function DetailNodePathway() {
                 <AccordionDetails>
                   {detailSelectedNode &&
                     detailSelectedNode.nfunctions &&
-                    detailSelectedNode.nfunctions.map((f: NFunction) => (
-                      <> {f.name}</>
-                    ))}
+                    detailSelectedNode.nfunctions.map(
+                      (f: NFunction, i: number) => (
+                        <span key={`func_${i}`}>{f.name}</span>
+                      ),
+                    )}
                 </AccordionDetails>
               </Accordion>
             )}

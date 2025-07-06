@@ -180,9 +180,7 @@ function Graphic() {
             filterPathway?.id,
             abortController.signal,
           );
-          console.log('Data fetched successfully:', graphData);
           const svgSize = getMaxValues(graphData.nodes);
-          console.log(svgSize);
           setSvgSize(svgSize);
           setGraph(graphData);
         } else {
@@ -213,8 +211,8 @@ function Graphic() {
         // Group nodes and link
         const nodeGroup = svg.append('g').attr('class', 'nodes');
         const linkGroup = svg.append('g').attr('class', 'links');
-        console.log(nodeGroup);
-        console.log(linkGroup);
+        //console.log(nodeGroup);
+        //console.log(linkGroup);
 
         createNodes(
           nodeGroup,

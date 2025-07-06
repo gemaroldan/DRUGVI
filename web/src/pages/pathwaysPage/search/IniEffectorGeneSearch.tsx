@@ -60,10 +60,10 @@ export default function IniEffectorGeneSelect() {
   }, [effectorGene]);
 
   useEffect(() => {
-    console.log(
-      'clear filter effector filterIniEffectorGene',
-      filterIniEffectorGene,
-    );
+    //console.log(
+    //  'clear filter effector filterIniEffectorGene',
+    //  filterIniEffectorGene,
+    //);
     if (filterIniEffectorGene != null) {
       setFilterIniEffectorGene(null);
     }

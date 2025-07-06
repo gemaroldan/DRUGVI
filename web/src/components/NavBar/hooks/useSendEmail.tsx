@@ -14,7 +14,6 @@ export const useSendEmail = () => {
     const subject = formData.get('subject');
     const email = formData.get('email');
 
-    console.log('Los datos son correctos, realizar una acción');
     setresult('ok');
 
     form.reset();

@@ -1,7 +1,7 @@
 // GenericGraph.tsx
 import { useRef, useState, useEffect } from 'react';
 import * as d3 from 'd3';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import stateSelectedNode from '../../../state/stateSelectedNode';
 import { useGraphData } from './useGraphData';
 import GraphData from '../../../types/graphic/GraphData';
@@ -9,8 +9,11 @@ import SvgSize from '../../../types/graphic/SvgSize';
 import {
   clearSelectNodeColor,
   createLabelsNodes,
+  CreateLabelsNodesFn,
+  CreateNodesFn,
   setSelectNodeColor,
 } from '../../graphics/CreateNodeGraphic';
+import { createRelationshipsFn } from '../../graphics/CreateLinkGraphic';
 
 const WIDTH = 'WIDTH';
 const HEIGHT = 'HEIGHT';
@@ -18,9 +21,9 @@ const HEIGHT = 'HEIGHT';
 type GenericGraphProps = {
   graphKey: string;
   graph: GraphData;
-  createNodes: Function;
-  createLabelsNodes: Function | undefined;
-  createLinks: Function;
+  createNodes: CreateNodesFn;
+  createLabelsNodes: CreateLabelsNodesFn | undefined;
+  createLinks: createRelationshipsFn;
 };
 
 function getSizeSvg(typeSize: string, svgSize: SvgSize): number {
@@ -29,13 +32,13 @@ function getSizeSvg(typeSize: string, svgSize: SvgSize): number {
     : svgSize.maxH - svgSize.minH + 2 * svgSize.marginH;
 }
 
-function renderGraph(
+function RenderGraph(
   svgRef: React.RefObject<SVGSVGElement>,
   graph: GraphData,
   svgSize: SvgSize,
-  createNodes: Function,
-  createLabelsNodes: Function,
-  createLinks: Function,
+  createNodes: CreateNodesFn,
+  createLabelsNodes: CreateLabelsNodesFn,
+  createLinks: createRelationshipsFn,
   tooltip: HTMLDivElement | null,
   handleSelectedNode: (node: any) => void,
 ) {
@@ -87,7 +90,7 @@ function GenericGraph({
   }
 
   useGraphData(graph, setSvgSize);
-  renderGraph(
+  RenderGraph(
     svgRef,
     graph,
     svgSize,
@@ -108,7 +111,7 @@ function GenericGraph({
   }, [selectedNode]);
 
   return (
-    <div className={`GraphContainer{key}`}>
+    <div className={`GraphContainer${graphKey}`}>
       <svg
         ref={svgRef}
         width={getSizeSvg(WIDTH, svgSize)}
